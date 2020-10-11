@@ -1,10 +1,11 @@
 from django.db import models
-
+import uuid
 # Create your models here.
 class User(models.Model):
     user_name = models.CharField(max_length=200)
+    user_id =  models.CharField(max_length=200)
     user_address = models.CharField(max_length=100)
-    user_image = models.ImageField(upload_to ='upload/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S")))
+    user_image = models.ImageField(upload_to ='upload/{}'.format(user_id))
 
 class Product(models.Model):
     title = models.CharField(max_length=1000)

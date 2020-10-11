@@ -2,10 +2,21 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http.response import StreamingHttpResponse
+import json
+face_dis_flag = False
 
 @api_view(["GET"])
 def index(request):
-    return Response({"Hello":"Hey"})
+	result = []
+	if face_dis_flag:
+		for name,dis in sorted(zip(known_names,distance), key=lambda item: item[1]):
+			face_dis = {}
+			face_dis["name"] = name
+			face_dis["distance"] = dis
+			print(face_dis)
+			result.append(face_dis)
+	print(result)
+	return Response(json.dumps(result))
 
 
 def framesGenerator(camera):
@@ -94,14 +105,16 @@ class VideoCamera():
 			if crop_image_H>5 and crop_image_W>5:
 
 				face_rect = self.face_detection(crop_image)
-				print(face_rect)
+				# print(face_rect)
 				if len(face_rect)==1:
 					results = face_recognition.compare_faces(known_faces, face_encoding,tolerance=0.6)
-					
+					global distance,face_dis_flag
+					distance = face_recognition.face_distance(known_faces,face_encoding)
+					face_dis_flag = True
 					match = None
 					if True in results:
 						match = known_names[results.index(True)]
-						print(f"Match Found:", {match})
+						# print(f"Match Found:", {match})
 					else:
 						match = "Unknown"
 			
