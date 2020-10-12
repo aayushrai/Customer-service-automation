@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http.response import StreamingHttpResponse
+from .models import User,UserSerializer
 import json
 face_dis_flag = False
 
@@ -9,14 +10,10 @@ face_dis_flag = False
 def index(request):
 	result = []
 	if face_dis_flag:
-		for name,dis in sorted(zip(known_names,distance), key=lambda item: item[1]):
-			face_dis = {}
-			face_dis["name"] = name
-			face_dis["distance"] = dis
-			print(face_dis)
-			result.append(face_dis)
-	print(result)
-	return Response(json.dumps(result))
+		for name,idd,dis in sorted(zip(known_names,known_id,distance), key=lambda item: item[2]):
+			result.append(User.objects.get(user_id=idd))
+	serilizeResult = UserSerializer(result,many=True)
+	return Response(serilizeResult.data)
 
 
 def framesGenerator(camera):
@@ -53,27 +50,34 @@ class VideoCamera():
 	
 	@staticmethod
 	def update_encoding():
-		global known_names,known_faces,net
+		global known_names,known_faces,net,known_id
 		known_names=[]
 		known_faces=[]
+		known_id = []
 		print("Loading Encoding")
 		UNKNOWN_DIR = "Api/Faces/"
-		for name in os.listdir(UNKNOWN_DIR):
-			FOLDER = os.path.join(UNKNOWN_DIR, name)
-			for filename in os.listdir(FOLDER):
-				image = face_recognition.load_image_file(os.path.join(FOLDER, filename))
-				location = []
-				faces = face_cascade.detectMultiScale(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 1.05, 5)
-				for (x,y,w,h) in faces:
-					(startX, startY, endX, endY) = x,y,x+w,y+h
-					if (startX + 5 < endX) and (startY + 5 < endY): 
-							location.append((startY,endX,endY,startX))
-				if len(location)>0:
-					encoding = face_recognition.face_encodings(image, known_face_locations=location)[0]
-					known_faces.append(encoding)
-					known_names.append(name)
-				else:
-					print(name,": Face not found in image path ",os.path.join(FOLDER, filename) )
+		# for name in os.listdir(UNKNOWN_DIR):
+		# 	FOLDER = os.path.join(UNKNOWN_DIR, name)
+		# 	for filename in os.listdir(FOLDER):
+		users = User.objects.all()
+		print(users)
+		for user in users:
+			image = face_recognition.load_image_file(user.user_image)
+			
+			location = []
+			faces = face_cascade.detectMultiScale(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 1.05, 5)
+			for (x,y,w,h) in faces:
+				(startX, startY, endX, endY) = x,y,x+w,y+h
+				if (startX + 5 < endX) and (startY + 5 < endY): 
+						location.append((startY,endX,endY,startX))
+			if len(location)>0:
+				encoding = face_recognition.face_encodings(image, known_face_locations=location)[0]
+				known_faces.append(encoding)
+				known_names.append(user.user_name)
+				known_id.append(user.user_id)
+			else:
+				print(name,": Face not found in image" )
+
 	def __del__(self):
 		self.video.stop()
     

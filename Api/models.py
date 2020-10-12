@@ -1,7 +1,11 @@
 from django.db import models
 import time
 import uuid
-# Create your models here.
+from rest_framework import serializers
+
+
+    
+
 class User(models.Model):
     user_name = models.CharField(max_length=200)
     user_id =  models.CharField(max_length=200,default=uuid.uuid1,unique=True)
@@ -12,6 +16,11 @@ class User(models.Model):
 
     def __str__(self):
         return self.user_name
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
 
 # class Product(models.Model):
 #     title = models.CharField(max_length=1000)
