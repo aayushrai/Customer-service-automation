@@ -10,7 +10,7 @@ class User(models.Model):
     user_name = models.CharField(max_length=200)
     user_id =  models.CharField(max_length=200,default=uuid.uuid1,unique=True)
     user_address = models.CharField(max_length=100)
-    user_image = models.ImageField(upload_to ='Api/Faces/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S")))
+    user_image = models.ImageField(upload_to ='Faces/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S")))
 
     
 

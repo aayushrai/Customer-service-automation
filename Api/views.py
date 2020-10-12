@@ -5,13 +5,16 @@ from django.http.response import StreamingHttpResponse
 from .models import User,UserSerializer
 import json
 face_dis_flag = False
-
+result = []
 @api_view(["GET"])
 def index(request):
-	result = []
+	global result
 	if face_dis_flag:
 		for name,idd,dis in sorted(zip(known_names,known_id,distance), key=lambda item: item[2]):
-			result.append(User.objects.get(user_id=idd))
+			if dis < .6:
+				result =[]
+				result.append(User.objects.get(user_id=idd))
+				
 	serilizeResult = UserSerializer(result,many=True)
 	return Response(serilizeResult.data)
 
@@ -139,7 +142,7 @@ class VideoCamera():
 
 	def get_frame(self):
 		self.frame = self.video.read()
-		print(self.frame.shape)
+
 		if self.frame.shape:
 			self.face_recog()
 		ret, jpeg = cv2.imencode('.jpg', self.frame)
