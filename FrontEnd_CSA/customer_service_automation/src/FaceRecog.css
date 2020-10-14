@@ -1,0 +1,16 @@
+.FaceRecog{
+    margin:10px;
+    display: flex;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    height: 150px;
+    min-width: 500px;
+}
+
+.FaceRecog__image{
+    overflow: hidden;
+    width: 150px;
+}
+.FaceRecog__details{
+    padding-left:10px;
+}
