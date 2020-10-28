@@ -11,7 +11,7 @@ class User(models.Model):
     user_id =  models.CharField(max_length=200,default=uuid.uuid1,unique=True)
     user_address = models.CharField(max_length=100)
     user_image = models.ImageField(upload_to ='Faces/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S")))
-
+    user_phone = models.CharField(max_length=20,default="")
     
 
     def __str__(self):
