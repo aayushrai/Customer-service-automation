@@ -22,11 +22,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = "__all__"
 
-# class Product(models.Model):
-#     title = models.CharField(max_length=1000)
-#     price = models.IntegerField(default=0) 
-#     logo = models.ImageField(upload_to ='upload/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S")))
-#     description = models.CharField(max_length=10000)
+class Product(models.Model):
+    title = models.CharField(max_length=1000)
+    price = models.IntegerField(default=0) 
+    category = models.CharField(max_length=100)
+    logo = models.ImageField(upload_to ='upload/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S")))
+    description = models.CharField(max_length=10000)
+    weight = models.CharField(max_length=100)
 
-#     def __str__(self):
-#         return self.titles
+    def __str__(self):
+        return self.titles
