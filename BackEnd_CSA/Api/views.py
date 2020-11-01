@@ -2,12 +2,12 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http.response import StreamingHttpResponse
-from .models import User,UserSerializer
+from .models import User,UserSerializer,Product,ProductSerializer
 import json
 face_dis_flag = False
 result = []
 @api_view(["GET"])
-def index(request):
+def userData(request):
 	global result
 	if face_dis_flag:
 		for name,idd,dis in sorted(zip(known_names,known_id,distance), key=lambda item: item[2]):
@@ -18,6 +18,29 @@ def index(request):
 	serilizeResult = UserSerializer(result,many=True)
 	return Response(serilizeResult.data)
 
+@api_view(["GET"])
+def productData(request):
+	result = Product.objects.all()
+	productResult = ProductSerializer(result,many=True)
+	return Response(productResult.data)
+
+def loadData(request):
+	import pandas as pd
+	df = pd.read_csv('Api/assets/customer.csv')
+	products = []
+	for i in range(len(df)):
+		products.append(
+			Product(
+			title=df.iloc[i]["Product Name"],
+			description=df.iloc[i]["Product details"],
+			logo=df.iloc[i]["Image"],
+			category=df.iloc[i]["Category"],
+			price=df.iloc[i]["Price"][3:],
+			weight=df.iloc[i]["Weight"]
+			
+			)
+		)
+	Product.objects.bulk_create(products)
 
 def framesGenerator(camera):
 	while True:
