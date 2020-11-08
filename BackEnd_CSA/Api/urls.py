@@ -6,5 +6,6 @@ urlpatterns =[
     path("productdata",views.productData,name="productData"),
     path("video",views.videoStream,name="videoStream"),
     path("loaddata",views.loadData,name="loadData"),
+    path("placeorder",views.PlaceOrder,name="place order"),
   
 ]

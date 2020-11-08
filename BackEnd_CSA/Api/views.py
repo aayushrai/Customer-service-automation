@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http.response import StreamingHttpResponse
-from .models import User,UserSerializer,Product,ProductSerializer
-import json
+from .models import User,UserSerializer,Product,ProductSerializer,Order
+from rest_framework.parsers import JSONParser
+import uuid
 face_dis_flag = False
 result = []
 @api_view(["GET"])
@@ -23,6 +24,27 @@ def productData(request):
 	result = Product.objects.all()
 	productResult = ProductSerializer(result,many=True)
 	return Response(productResult.data)
+
+@api_view(["POST"])
+def PlaceOrder(request):
+	print(request.data)
+	order_details = request.data
+	order_id = uuid.uuid4()
+	orders = []
+	for order in order_details:
+		user = User.objects.get(user_id=order["user_id"])
+		product = Product.objects.get(product_id=order["product_id"])
+		orders.append(
+			Order(
+				user=user,
+				product=product,
+				order_id=order_id,
+				product_quantity=order["product_quantity"]
+			)
+		)
+	Order.objects.bulk_create(orders)
+		
+	return Response({"status":"Order Placed"})
 
 def loadData(request):
 	import pandas as pd
