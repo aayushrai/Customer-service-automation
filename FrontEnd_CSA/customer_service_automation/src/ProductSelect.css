@@ -1,0 +1,32 @@
+.product {
+  display: flex;
+  border-radius: 5px;
+  border-style: groove;
+  margin: 5px;
+}
+.product__img {
+  width: 220px;
+  height: 220px;
+}
+.product__desc {
+  width: 50%;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 50px;
+  font-size: 30px;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+.product__qty {
+  background-color: #eff3f1;
+  padding-top: 20px;
+  display: flex;
+  font-size: 25px;
+  font-weight: bold;
+}
+.product__qty div {
+  padding: 18px;
+}
+.checkout__button {
+  margin-top: 5px;
+  margin-left: 92%;
+}

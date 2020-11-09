@@ -15,7 +15,6 @@ def userData(request):
 			if dis < .6:
 				result =[]
 				result.append(User.objects.get(user_id=idd))
-				
 	serilizeResult = UserSerializer(result,many=True)
 	return Response(serilizeResult.data)
 
@@ -34,6 +33,14 @@ def PlaceOrder(request):
 	for order in order_details:
 		user = User.objects.get(user_id=order["user_id"])
 		product = Product.objects.get(product_id=order["product_id"])
+
+		#update quantity of product
+		new_quantity = product.quantity - order["product_quantity"]
+		if new_quantity < 0:
+			product.quantity = 0
+		else:
+			product.quantity = new_quantity
+		product.save()
 		orders.append(
 			Order(
 				user=user,
@@ -42,6 +49,7 @@ def PlaceOrder(request):
 				product_quantity=order["product_quantity"]
 			)
 		)
+		
 	Order.objects.bulk_create(orders)
 		
 	return Response({"status":"Order Placed"})
@@ -58,11 +66,14 @@ def loadData(request):
 			logo=df.iloc[i]["Image"],
 			category=df.iloc[i]["Category"],
 			price=df.iloc[i]["Price"][3:],
-			weight=df.iloc[i]["Weight"]
+			weight=df.iloc[i]["Weight"],
+			quantity=df.iloc[i]["Quantity"]
 			
 			)
 		)
 	Product.objects.bulk_create(products)
+	return Response({"status":"Data loaded"})
+
 
 def framesGenerator(camera):
 	while True:
