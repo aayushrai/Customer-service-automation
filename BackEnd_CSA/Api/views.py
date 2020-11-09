@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http.response import StreamingHttpResponse
-from .models import User,UserSerializer,Product,ProductSerializer,Order
+from .models import User,UserSerializer,Product,ProductSerializer,Order,OrderSerializer
 from rest_framework.parsers import JSONParser
 import uuid
 face_dis_flag = False
@@ -52,8 +52,17 @@ def PlaceOrder(request):
 		
 	Order.objects.bulk_create(orders)
 		
-	return Response({"status":"Order Placed"})
+	return Response({"order_id":order_id})
 
+@api_view(["GET"])
+def orderInfo(request,order_id):
+	orders = []
+	order_info = Order.objects.filter(order_id=order_id)
+	user_info = order_info[0].user
+	print(order_info)
+	serilizeOrderInfo = OrderSerializer(order_info,many=True)
+	serilizeUserInfo = UserSerializer(user_info)
+	return Response([serilizeUserInfo.data] + serilizeOrderInfo.data)
 def loadData(request):
 	import pandas as pd
 	df = pd.read_csv('Api/assets/customer.csv')

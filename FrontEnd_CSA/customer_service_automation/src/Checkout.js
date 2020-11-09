@@ -1,20 +1,38 @@
 import Table from './ProductsCheckout';
 import Button from '@material-ui/core/Button';
-import React from 'react';
+import React, { useState } from 'react';
 import "./Checkout.css";
-
-
+import {
+    Link,
+    useParams
+  } from "react-router-dom";
+import { useEffect } from 'react';
+const url = "http://127.0.0.1:8000";
 function Checkout() {
+    const [OrderData,setOrder] = useState([]);
+    const params = useParams();
+        fetch(url+'/order/'+ params.order_id)
+              .then((response) => {
+               //  console.log(response.json());
+                return response.json();
+               })
+               .then((data)=>{
+                 setOrder(data);
+                // console.log("order",data);
+               });
+    const user = OrderData[0];
+    
     return (
         <div className="checkout">
             <div className="person__data">
                 <div className="person__image">
-                    <img src="http://127.0.0.1:8000/media/Faces/2020-10-12-12-54-17/0.jpeg" />
+                    { console.log(OrderData[0])}
+                    {/* <img src={url + "/" + OrderData.length &&  OrderData[0].user_image} /> */}
                 </div>
                 <div className="person__info">
                     <div className="lineone">
                         <div>
-                            <label className="label">First Name</label>
+                            <label className="label">{OrderData.length &&  OrderData[0].user_name}</label>
                             <br></br>
                             <input type="text" id="fname" name="firstname" placeholder="John" ></input>
                         </div>
@@ -65,7 +83,10 @@ function Checkout() {
                     </Button>
                 </div>
             </div>
-            <Table />
+            {OrderData.length > 0 &&
+                <Table order={OrderData}/>
+                 }
+        
         </div>
     )
 }

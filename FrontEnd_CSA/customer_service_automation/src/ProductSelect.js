@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@material-ui/core/Button';
-import './ProductSelect.css'
+import './ProductSelect.css';
 import {
     Link,
-    useParams
+    useParams,useHistory
   } from "react-router-dom";
+
 const url = "http://127.0.0.1:8000";
 
 
+
 function ProductSelect() {
+    const history = useHistory();
     const params = useParams();
     const [ProductData,setProduct] = useState([]);
     const [CartData,setCartData] = useState([]);
-        fetch(url+'/productdata')
+    useEffect(() => {
+        
+            fetch(url+'/productdata')
               .then((response) => {
                //  console.log(response.json());
                 return response.json();
@@ -21,6 +26,7 @@ function ProductSelect() {
                  setProduct(data);
                 //  console.log(data);
                });
+    }, [])
     const placeOrder = ()=> {
     const requestOptions = {    
             method: 'POST',
@@ -29,9 +35,11 @@ function ProductSelect() {
         };
     fetch(url+'/placeorder', requestOptions)
     .then(response => response.json())
-    .then(data => {return { postId: data.id }});
-
-    }
+    .then(data => {
+        history.push("/checkout/"+data["order_id"]);
+    
+    })}
+  
 
     const addData = (item) => {
         const index = CartData.findIndex(
@@ -50,11 +58,9 @@ function ProductSelect() {
     return (
         <div>
             <div className="checkout">
-                <Link to="/checkout">
                     <Button onClick={() => placeOrder()} variant="contained" color="primary" >
                         Checkout
                     </Button>
-                </Link>
                 </div>
             <div>{params.uid}</div>
             {ProductData.map(function (item,i){
@@ -82,6 +88,7 @@ function ProductSelect() {
             })}
         </div>
     )
-}
+        
+    }
 
 export default ProductSelect

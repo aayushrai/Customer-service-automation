@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import './App.css';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
@@ -10,25 +10,32 @@ const url = "http://127.0.0.1:8000";
 
 function App() {
   const [FaceDetected,setFaceDetected] = useState([]);
-  setTimeout(() => {
-     fetch(url+"/userdata")
-           .then((response) => {
-            //  console.log(response.json());
-             return response.json();
-            })
-            .then((data)=>{
-              setFaceDetected(data);
-              // console.log(data);
-            })},10000);
-      
-      
+
+useEffect(() => {
+  const interval = setInterval(
+    () => {
+      fetch(url+"/userdata")
+            .then((response) => {
+             //  console.log(response.json());
+              return response.json();
+             })
+             .then((data)=>{
+               setFaceDetected(data);
+               // console.log(data);
+             })}
+    , 1000);
+  return () => {
+    clearInterval(interval);
+  };
+}, []);
+
 
       return (
         <Router>
         <div className="App">
           
           <Switch>
-              <Route path="/checkout">
+              <Route path="/checkout/:order_id">
                 <Header />
                 <Checkout />
               </Route>
