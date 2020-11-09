@@ -11,6 +11,7 @@ const url = "http://127.0.0.1:8000";
 function Checkout() {
     const [OrderData,setOrder] = useState([]);
     const params = useParams();
+    useEffect(() => {
         fetch(url+'/order/'+ params.order_id)
               .then((response) => {
                //  console.log(response.json());
@@ -20,33 +21,33 @@ function Checkout() {
                  setOrder(data);
                 // console.log("order",data);
                });
-    const user = OrderData[0];
+        }, [])
+        
     
     return (
         <div className="checkout">
             <div className="person__data">
                 <div className="person__image">
-                    { console.log(OrderData[0])}
-                    {/* <img src={url + "/" + OrderData.length &&  OrderData[0].user_image} /> */}
+                    <img src={OrderData.length &&  url+OrderData[0].user_image} />
                 </div>
                 <div className="person__info">
+                    <div>
+                        <label className="label">Order Id</label>
+                        <br></br>
+                        <input type="text" id="orderid" name="Order" value={params.order_id} ></input>
+                    </div>
                     <div className="lineone">
                         <div>
-                            <label className="label">{OrderData.length &&  OrderData[0].user_name}</label>
+                            <label className="label">First Name</label>
                             <br></br>
-                            <input type="text" id="fname" name="firstname" placeholder="John" ></input>
-                        </div>
-                        <div>
-                            <label className="label">Last Name</label>
-                            <br></br>
-                            <input type="text" id="lname" name="lastname" placeholder="Doe" ></input>
+                            <input type="text" id="fname" name="firstname" value={OrderData.length &&  OrderData[0].user_name} ></input>
                         </div>
                     </div>
                     <div className="linetwo">
                         <div>
                             <label className="label">Contact</label>
                             <br></br>
-                            <input type="text" id="contact" name="contact" placeholder="XXX-XXX-XXXX" ></input>
+                            <input type="text" id="contact" name="contact" value={OrderData.length &&  OrderData[0].user_phone} ></input>
                         </div>
                         <div>
                             <label className="label">Payment Method</label>
@@ -62,7 +63,7 @@ function Checkout() {
                     <div className="linethree">
                         <label className="label">Address</label>
                         <br></br>
-                        <input size="53" type="text" id="address" name="address" placeholder="" ></input>
+                        <input size="53" type="text" id="address" name="address" value={OrderData.length &&  OrderData[0].user_address} ></input>
                     </div>
                     <div className="linefour">
                         <div >

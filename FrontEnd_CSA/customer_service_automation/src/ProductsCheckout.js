@@ -9,18 +9,17 @@ class Table extends Component {
       this.state = { //state is by default an object
          products:this.props.order
       }
-      console.log(this.props.order);
    }
    
    renderTableData() {
     return this.state.products.map((order, index) => {
-       console.log(order);
        return (
-          <tr key={order.id}>
-             <td>{order.order_id}</td>
-             <td>{order.product}</td>
-             <td>{order.user}</td>
+          <tr key={order.order_id}>
+             <td>{order.title}</td>
+             <td>{order.price}</td>
              <td>{order.product_quantity}</td>
+             <td>{order.weight}</td>
+             <td>{order.description}</td>
           </tr>
        )
     })
@@ -28,7 +27,7 @@ class Table extends Component {
 
  renderTableHeader() {
     
-    let header = Object.keys({"Order ID":"","Product":"","User":"","Quantity":""})
+    let header = Object.keys({"Title":"","Price":"","Quantity":"","weight":"","Description":""})
     return header.map((key, index) => {
        return <th key={index}>{key.toUpperCase()}</th>
     })

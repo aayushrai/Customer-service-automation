@@ -24,6 +24,7 @@ def productData(request):
 	productResult = ProductSerializer(result,many=True)
 	return Response(productResult.data)
 
+
 @api_view(["POST"])
 def PlaceOrder(request):
 	print(request.data)
@@ -56,13 +57,21 @@ def PlaceOrder(request):
 
 @api_view(["GET"])
 def orderInfo(request,order_id):
-	orders = []
 	order_info = Order.objects.filter(order_id=order_id)
 	user_info = order_info[0].user
-	print(order_info)
-	serilizeOrderInfo = OrderSerializer(order_info,many=True)
+	result = []
+	serilizeOrderInfo = OrderSerializer(order_info,many=True).data
+	for order in serilizeOrderInfo:
+		productDis = ProductSerializer(Product.objects.get(id=order["product"])).data
+		dis = {} 	
+		for key,value in order.items():
+			dis[key] = value
+		for key,value in productDis.items():
+			dis[key] = value
+		result.append(dis)
 	serilizeUserInfo = UserSerializer(user_info)
-	return Response([serilizeUserInfo.data] + serilizeOrderInfo.data)
+	print(serilizeUserInfo.data)
+	return Response([serilizeUserInfo.data] + result)
 def loadData(request):
 	import pandas as pd
 	df = pd.read_csv('Api/assets/customer.csv')
