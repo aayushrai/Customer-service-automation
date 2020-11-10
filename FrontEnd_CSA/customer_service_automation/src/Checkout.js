@@ -11,7 +11,6 @@ const url = "http://127.0.0.1:8000";
 function Checkout() {
     const [OrderData,setOrder] = useState([]);
     const params = useParams();
-    var total = 0;
     useEffect(() => {
         fetch(url+'/order/'+ params.order_id)
               .then((response) => {
@@ -22,12 +21,12 @@ function Checkout() {
                  setOrder(data);
                 // console.log("order",data);
                });
+               OrderData.map((item)=>{
+            })
+  
         }, [])
-    
-        OrderData.map((item)=>{
-            total +=  item.product_quantity + item.price;
-            console.log("total",total,item.product_quantity,item.price)
-        })
+       
+        
     return (
         <div className="checkout">
             <div className="person__data">
@@ -78,7 +77,7 @@ function Checkout() {
                         <div>
                             <label className="label">Final Price</label>
                             <br></br>
-                            <input type="text" id="price" name="price" value={total} ></input>
+                            <input type="text" id="price" name="price" value={params.total} ></input>
                         </div>
                     </div>
                 </div>

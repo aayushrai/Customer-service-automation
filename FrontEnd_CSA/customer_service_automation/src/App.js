@@ -35,7 +35,7 @@ useEffect(() => {
         <div className="App">
           
           <Switch>
-              <Route path="/checkout/:order_id">
+              <Route path="/checkout/:order_id/:total">
                 <Header />
                 <Checkout />
               </Route>

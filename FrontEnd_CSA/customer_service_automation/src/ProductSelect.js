@@ -14,7 +14,7 @@ function ProductSelect() {
     const history = useHistory();
     const params = useParams();
     const [ProductData,setProduct] = useState([]);
-    const [NumItem,setNumItem] = useState(0);
+    const [Total,setTotal] = useState(0);
     const [CartData,setCartData] = useState([]);
     useEffect(() => {
         
@@ -37,7 +37,7 @@ function ProductSelect() {
     fetch(url+'/placeorder', requestOptions)
     .then(response => response.json())
     .then(data => {
-        history.push("/checkout/"+data["order_id"]);
+        history.push("/checkout/"+data["order_id"] + "/" + Total);
     
     })}
   
@@ -54,12 +54,12 @@ function ProductSelect() {
         if(index >= 0){
             CartData[index]["product_quantity"] += 1
             setCartData(CartData);
+            
         }
         else{
             setCartData([...CartData,{"product_quantity":1,"user_id":params.uid,"product_id":item.product_id}])
-            setNumItem(NumItem+1);
         }
-        
+        setTotal(Total + item.price);
     }
     return (
         <div>
