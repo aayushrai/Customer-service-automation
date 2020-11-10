@@ -20,13 +20,24 @@
   background-color: #eff3f1;
   padding-top: 20px;
   display: flex;
-  font-size: 25px;
+  font-size: 30px;
   font-weight: bold;
 }
 .product__qty div {
   padding: 18px;
 }
-.checkout__button {
+.checkout__btn {
   margin-top: 5px;
   margin-left: 92%;
+}
+.user__id {
+  margin-top: -40px;
+  margin-left: 10px;
+}
+.user__id h2 {
+  font-family: Georgia, "Times New Roman", Times, serifs;
+  display: flex;
+}
+.user__id p {
+  text-decoration: black underline;
 }

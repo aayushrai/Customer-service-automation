@@ -14,6 +14,7 @@ function ProductSelect() {
     const history = useHistory();
     const params = useParams();
     const [ProductData,setProduct] = useState([]);
+    const [NumItem,setNumItem] = useState(0);
     const [CartData,setCartData] = useState([]);
     useEffect(() => {
         
@@ -40,8 +41,12 @@ function ProductSelect() {
     
     })}
   
+    
 
     const addData = (item) => {
+    
+    
+
         const index = CartData.findIndex(
             (data) => data.product_id === item.product_id
           );
@@ -52,17 +57,18 @@ function ProductSelect() {
         }
         else{
             setCartData([...CartData,{"product_quantity":1,"user_id":params.uid,"product_id":item.product_id}])
+            setNumItem(NumItem+1);
         }
         
     }
     return (
         <div>
-            <div className="checkout">
+            <div className="checkout__btn">
                     <Button onClick={() => placeOrder()} variant="contained" color="primary" >
                         Checkout
                     </Button>
                 </div>
-            <div>{params.uid}</div>
+            <div className="user__id"><h2>User Id</h2><p>{params.uid}</p></div>
             {ProductData.map(function (item,i){
                 return(
                 <div className="product">
@@ -72,15 +78,16 @@ function ProductSelect() {
                         <div>
                             <label>Select Quantity</label>
                             <br></br>
-                            <input type="text" defaultValue="0" ></input>
+                            <input className="exis_qty" type="text" value="0" size="2"></input>
                         </div>
                         <div>
                             <label>Quantity Available</label>
                             <p className="available">{item.quantity}</p>
                         </div>
-                        <div>
+                        <div className="button__div">
                         <Button onClick={() => addData(item)} variant="contained" color="primary">
-                        ADD</Button>
+                            ADD
+                        </Button>
                         </div>
                     </div>
                     

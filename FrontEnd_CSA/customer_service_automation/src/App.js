@@ -23,7 +23,7 @@ useEffect(() => {
                setFaceDetected(data);
                // console.log(data);
              })}
-    , 1000);
+    , 3000);
   return () => {
     clearInterval(interval);
   };

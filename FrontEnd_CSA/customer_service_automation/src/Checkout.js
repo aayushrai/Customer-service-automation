@@ -11,6 +11,7 @@ const url = "http://127.0.0.1:8000";
 function Checkout() {
     const [OrderData,setOrder] = useState([]);
     const params = useParams();
+    var total = 0;
     useEffect(() => {
         fetch(url+'/order/'+ params.order_id)
               .then((response) => {
@@ -22,8 +23,11 @@ function Checkout() {
                 // console.log("order",data);
                });
         }, [])
-        
     
+        OrderData.map((item)=>{
+            total +=  item.product_quantity + item.price;
+            console.log("total",total,item.product_quantity,item.price)
+        })
     return (
         <div className="checkout">
             <div className="person__data">
@@ -31,14 +35,14 @@ function Checkout() {
                     <img src={OrderData.length &&  url+OrderData[0].user_image} />
                 </div>
                 <div className="person__info">
-                    <div>
+                    <div className="order__id">
                         <label className="label">Order Id</label>
                         <br></br>
-                        <input type="text" id="orderid" name="Order" value={params.order_id} ></input>
+                        <input type="text" id="orderid" name="Order" value={params.order_id} size="33" readOnly></input>
                     </div>
                     <div className="lineone">
                         <div>
-                            <label className="label">First Name</label>
+                            <label className="label">Customer Name</label>
                             <br></br>
                             <input type="text" id="fname" name="firstname" value={OrderData.length &&  OrderData[0].user_name} ></input>
                         </div>
@@ -69,12 +73,12 @@ function Checkout() {
                         <div >
                             <label className="label">Number of items</label>
                             <br></br>
-                            <input type="text" id="items" name="items" placeholder="" ></input>
+                            <input type="text" id="items" name="items" value={OrderData.length -1} ></input>
                         </div>
                         <div>
                             <label className="label">Final Price</label>
                             <br></br>
-                            <input type="text" id="price" name="price" placeholder="" ></input>
+                            <input type="text" id="price" name="price" value={total} ></input>
                         </div>
                     </div>
                 </div>

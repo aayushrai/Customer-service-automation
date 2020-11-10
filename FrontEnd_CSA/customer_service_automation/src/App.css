@@ -1,11 +1,13 @@
 * {
-  margin :0;
+  margin: 0;
 }
 
-.App{
-  
+.App {
 }
 
-.App__container{
-
+.App__container {
+}
+.front {
+  margin-top: 20px;
+  display: flex;
 }

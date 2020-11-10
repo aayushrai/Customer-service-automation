@@ -11,9 +11,9 @@ result = []
 def userData(request):
 	global result
 	if face_dis_flag:
+		result =[]
 		for name,idd,dis in sorted(zip(known_names,known_id,distance), key=lambda item: item[2]):
 			if dis < .6:
-				result =[]
 				result.append(User.objects.get(user_id=idd))
 	serilizeResult = UserSerializer(result,many=True)
 	return Response(serilizeResult.data)
@@ -24,6 +24,31 @@ def productData(request):
 	productResult = ProductSerializer(result,many=True)
 	return Response(productResult.data)
 
+#https://www.google.com/settings/security/lesssecureapps
+
+@api_view(["POST"])
+def sendEmail(request):
+    sender_email = ""
+    password = ""
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Your Coffe Shop Order: Placed"
+    message["From"] = sender_email
+    part1 = MIMEText("Text which you wnat to send", "plain")
+    # part2 = MIMEText(html, "html")
+    message.attach(part1)
+    # message.attach(part2)
+    receivers = ["rai.aayush2000@gmail.com"]
+    context = ssl.create_default_context()
+    if len(receivers)>0:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+                print("Sending emails")
+                server.login(sender_email, password)
+                for receiver_email in receivers:
+                        message["To"] = receiver_email
+                        server.sendmail(sender_email, receiver_email, message.as_string())
+    else:
+        print("No Emails")
+    return Response({"email":"ohk"})
 
 @api_view(["POST"])
 def PlaceOrder(request):
