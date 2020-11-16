@@ -16,6 +16,7 @@ function ProductSelect() {
     const [ProductData,setProduct] = useState([]);
     const [Total,setTotal] = useState(0);
     const [CartData,setCartData] = useState([]);
+    const [Count,setCount] = useState({});
     useEffect(() => {
         
             fetch(url+'/productdata')
@@ -27,6 +28,7 @@ function ProductSelect() {
                  setProduct(data);
                 //  console.log(data);
                });
+       
     }, [])
     const placeOrder = ()=> {
     const requestOptions = {    
@@ -78,7 +80,7 @@ function ProductSelect() {
                         <div>
                             <label>Select Quantity</label>
                             <br></br>
-                            <input className="exis_qty" type="text" value="0" size="2"></input>
+                            <input className="exis_qty" type="text" value={Count[item.product_id]}></input>
                         </div>
                         <div>
                             <label>Quantity Available</label>

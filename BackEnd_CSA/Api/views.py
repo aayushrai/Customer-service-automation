@@ -5,6 +5,15 @@ from django.http.response import StreamingHttpResponse
 from .models import User,UserSerializer,Product,ProductSerializer,Order,OrderSerializer
 from rest_framework.parsers import JSONParser
 import uuid
+import time
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime
+
+# datetime object containing current date and time
+now = datetime.now()
+
 face_dis_flag = False
 result = []
 @api_view(["GET"])
@@ -24,31 +33,228 @@ def productData(request):
 	productResult = ProductSerializer(result,many=True)
 	return Response(productResult.data)
 
-#https://www.google.com/settings/security/lesssecureapps
+def emailTemplate(orderInfo):
+	product = ""
+	total = 0 
+	for order in orderInfo:
+		total += order.product.price * (order.product_quantity)
+		product += """ <tr>
+            <td class="service">{}</td>
+            <td class="desc">{}</td>
+            <td class="unit">{}</td>
+            <td class="qty">{}</td>
+            <td class="total">{}</td>
+          </tr>""".format(order.product.title,order.product.description,order.product.price,order.product_quantity,order.product.price * (order.product_quantity))
+		  
+	html = '''
+	<!DOCTYPE html>
+	<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Example 1</title>
+    <link rel="stylesheet" href="style.css" media="all" />
+	<style>
+	a {
+  color: #5D6975;
+  text-decoration: underline;
+}
 
-@api_view(["POST"])
-def sendEmail(request):
-    sender_email = ""
-    password = ""
-    message = MIMEMultipart("alternative")
-    message["Subject"] = "Your Coffe Shop Order: Placed"
-    message["From"] = sender_email
-    part1 = MIMEText("Text which you wnat to send", "plain")
-    # part2 = MIMEText(html, "html")
-    message.attach(part1)
-    # message.attach(part2)
-    receivers = ["rai.aayush2000@gmail.com"]
-    context = ssl.create_default_context()
-    if len(receivers)>0:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-                print("Sending emails")
-                server.login(sender_email, password)
-                for receiver_email in receivers:
-                        message["To"] = receiver_email
-                        server.sendmail(sender_email, receiver_email, message.as_string())
-    else:
-        print("No Emails")
-    return Response({"email":"ohk"})
+body {
+  position: relative;
+  width: 21cm;  
+  height: 29.7cm; 
+  margin: 0 auto; 
+  color: #001028;
+  background: #FFFFFF; 
+  font-family: Arial, sans-serif; 
+  font-size: 12px; 
+  font-family: Arial;
+}
+
+header {
+  padding: 10px 0;
+  margin-bottom: 30px;
+}
+
+#logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#logo img {
+  width: 90px;
+}
+
+h1 {
+  border-top: 1px solid  #5D6975;
+  border-bottom: 1px solid  #5D6975;
+  color: #5D6975;
+  font-size: 2.4em;
+  line-height: 1.4em;
+  font-weight: normal;
+  text-align: center;
+  margin: 0 0 20px 0;
+  background: url(dimension.png);
+}
+
+#project {
+  float: left;
+}
+
+#project span {
+  color: #5D6975;
+  text-align: right;
+  width: 52px;
+  margin-right: 10px;
+  display: inline-block;
+  font-size: 0.8em;
+}
+
+#company {
+  float: right;
+  text-align: right;
+}
+
+#project div,
+#company div {
+  white-space: nowrap;        
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+
+table tr:nth-child(2n-1) td {
+  background: #F5F5F5;
+}
+
+table th,
+table td {
+  text-align: center;
+}
+
+table th {
+  padding: 5px 20px;
+  color: #5D6975;
+  border-bottom: 1px solid #C1CED9;
+  white-space: nowrap;        
+  font-weight: normal;
+}
+
+table .service,
+table .desc {
+  text-align: left;
+}
+
+table td {
+  padding: 20px;
+  text-align: right;
+}
+
+table td.service,
+table td.desc {
+  vertical-align: top;
+}
+
+table td.unit,
+table td.qty,
+table td.total {
+  font-size: 1.2em;
+}
+
+table td.grand {
+  border-top: 1px solid #5D6975;;
+}
+
+#notices .notice {
+  color: #5D6975;
+  font-size: 1.2em;
+}
+
+footer {
+  color: #5D6975;
+  width: 100%;
+  height: 30px;
+  position: absolute;
+  bottom: 0;
+  border-top: 1px solid #C1CED9;
+  padding: 8px 0;
+  text-align: center;
+}
+	</style>
+  </head>
+	<body>
+		<header class="clearfix">
+		<h1>INVOICE</h1>
+		<div id="company" class="clearfix">
+			<div>WE MEGA MART</div>
+			<div><a href="dummy21072000@gmail.com">dummy21072000@gmail.com</a></div>
+		</div>
+		<div id="project">
+			<div><span>Order ID </span>'''+ orderInfo[0].order_id+'''</div>
+			<div><span>CLIENT</span> '''+orderInfo[0].user.user_name +'''</div>
+			<div><span>ADDRESS</span> '''+orderInfo[0].user.user_address +'''</div>
+			<div><span>EMAIL</span> <a href="'''+orderInfo[0].user.user_email +'''">'''+orderInfo[0].user.user_email +'''</a></div>
+			<div><span>DATE</span>'''+ now.strftime("%d/%m/%Y %H:%M:%S") +'''</div>
+		</div>
+		</header>
+		<main>
+		<table>
+			<thead>
+			<tr>
+				<th class="service">PRODUCT NAME>
+				<th class="desc">DESCRIPTION</th>
+				<th>PRICE</th>
+				<th>QTY</th>
+				<th>TOTAL</th>
+			</tr>
+			</thead>
+			<tbody>
+		    '''+product+'''
+			<tr>
+				<td colspan="4" class="grand total">GRAND TOTAL</td>
+				<td class="grand total"> '''+ str(total) +'''</td>
+			</tr>
+			</tbody>
+		</table>
+		</main>
+		<footer>
+		Invoice was created on a computer and is valid without the signature and seal.
+		</footer>
+	</body>
+	</html>'''
+	return html
+
+#https://www.google.com/settings/security/lesssecureapps
+def sendEmail(order_id):
+	order_info = Order.objects.filter(order_id=order_id)
+	user_info = order_info[0].user
+	receiver_email = user_info.user_email
+	print(receiver_email)
+	sender_email = "dummy21072000@gmail.com"
+	password = "Aayush#21"
+	message = MIMEMultipart("alternative")
+	message["Subject"] = "WE MEGA MART BILL"
+	message["From"] = sender_email
+	html = emailTemplate(order_info)
+	text = "hloo"
+	part1 = MIMEText(text, "plain")
+	part2 = MIMEText(html, "html")
+
+	message.attach(part1)
+	message.attach(part2)
+	context = ssl.create_default_context()
+	if receiver_email:
+		with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+				print("Sending emails")
+				server.login(sender_email, password)
+				message["To"] = receiver_email
+				server.sendmail(sender_email, receiver_email, message.as_string())
+	else:
+		print("No Emails")
 
 @api_view(["POST"])
 def PlaceOrder(request):
@@ -59,7 +265,6 @@ def PlaceOrder(request):
 	for order in order_details:
 		user = User.objects.get(user_id=order["user_id"])
 		product = Product.objects.get(product_id=order["product_id"])
-
 		#update quantity of product
 		new_quantity = product.quantity - order["product_quantity"]
 		if new_quantity < 0:
@@ -75,9 +280,11 @@ def PlaceOrder(request):
 				product_quantity=order["product_quantity"]
 			)
 		)
-		
+	user = User.objects.get(user_id=order_details[0]["user_id"])
+	user.order_count = user.order_count + 1
+	user.save()
 	Order.objects.bulk_create(orders)
-		
+	sendEmail(order_id)
 	return Response({"order_id":order_id})
 
 @api_view(["GET"])

@@ -10,6 +10,8 @@ class User(models.Model):
     user_address = models.CharField(max_length=100)
     user_image = models.ImageField(upload_to ='Faces/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S")))
     user_phone = models.CharField(max_length=20,default="")
+    user_email = models.CharField(max_length=100,default="")
+    order_count = models.IntegerField(default=0) 
 
     def __str__(self):
         return self.user_name
@@ -43,7 +45,7 @@ class Order(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     order_id = models.CharField(max_length=1000)
     product_quantity = models.IntegerField(default=0)
-   
+    
     def __str__(self):
         return self.order_id
 
