@@ -2,10 +2,12 @@
   display: flex;
 }
 .person__image {
-  border: thin solid black;
+  border: 1px solid #919292;
+  border-radius:5px;
   margin: auto;
   margin-left: 77px;
   margin-right: 20px;
+  overflow: hidden;
 }
 .person__image img {
   height: 290px;
@@ -67,4 +69,13 @@
 
 .order__id {
   margin-left: 22px;
+}
+input{
+  border: 2px solid #eaecee;
+  border-radius:16px;
+  padding:5px;
+}
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
 }

@@ -66,14 +66,14 @@ function ProductSelect() {
     return (
         <div>
             <div className="checkout__btn">
-                    <Button onClick={() => placeOrder()} variant="contained" color="primary" >
+                    <Button onClick={() => placeOrder()} variant="contained" color="black" >
                         Checkout
                     </Button>
                 </div>
             <div className="user__id"><h2>User Id</h2><p>{params.uid}</p></div>
             {ProductData.map(function (item,i){
                 return(
-                <div className="product">
+                <div className="post">
                     <img className="product__img" src={item.logo}></img>
                     <div className="product__desc">{item.description}</div>
                     <div className="product__qty">

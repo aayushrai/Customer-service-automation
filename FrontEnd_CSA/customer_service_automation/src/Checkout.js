@@ -45,6 +45,11 @@ function Checkout() {
                             <br></br>
                             <input type="text" id="fname" name="firstname" value={OrderData.length &&  OrderData[0].user_name} ></input>
                         </div>
+                        <div>
+                            <label className="label">Customer Email</label>
+                            <br></br>
+                            <input type="text" id="email" name="firstname" value={OrderData.length &&  OrderData[0].user_email} ></input>
+                        </div>
                     </div>
                     <div className="linetwo">
                         <div>
@@ -82,7 +87,7 @@ function Checkout() {
                     </div>
                 </div>
                 <div>
-                    <Button variant="contained" color="primary" >
+                    <Button variant="contained" color="black" >
                         Order Now
                     </Button>
                 </div>

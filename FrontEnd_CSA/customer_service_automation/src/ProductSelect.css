@@ -41,3 +41,24 @@
 .user__id p {
   text-decoration: black underline;
 }
+
+.post{
+  display: flex;
+  border: 2px solid #eaecee;
+  border-radius:8px;
+  min-height: 200px;
+  overflow: hidden;
+  transition: all .25s ease;
+  cursor: pointer;
+  margin-top: 5px;
+
+}
+
+.post:hover{
+  transform: translate3d(0,-5px,0);
+  box-shadow: 0 2rem 5rem 0 rgba(0, 0,0, .1);
+}
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}

@@ -46,8 +46,8 @@ useEffect(() => {
               <Route path="/">
                 <Header />
                 <div className="front">
-                  <div>
-                    <img src={url+"/video"}></img>
+                  <div > 
+                    <img className="App__camera" src={url+"/video"}></img>
                   </div>
                   <div className="App__container">
                     <div className="App__list">

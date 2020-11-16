@@ -4,7 +4,7 @@
     border: 1px solid #eaeaea;
     border-radius: 8px;
     height: 150px;
-    min-width: 500px;
+    min-width: 800px;
 }
 
 .FaceRecog__image{
@@ -13,4 +13,9 @@
 }
 .FaceRecog__details{
     padding-left:10px;
+}
+.FaceRecog__button{
+    display:flex;
+    justify-content: right;
+    align-items: center;
 }
