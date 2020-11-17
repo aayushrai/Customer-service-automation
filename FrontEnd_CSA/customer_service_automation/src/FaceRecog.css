@@ -1,10 +1,12 @@
 .FaceRecog{
-    margin:10px;
+    margin:5px;
     display: flex;
     border: 1px solid #eaeaea;
     border-radius: 8px;
     height: 150px;
     min-width: 800px;
+    transition: all .25s ease;
+    cursor: pointer;
 }
 
 .FaceRecog__image{
@@ -19,3 +21,8 @@
     justify-content: right;
     align-items: center;
 }
+
+.FaceRecog:hover{
+    transform: translate3d(0,-5px,0);
+    box-shadow: 0 2rem 5rem 0 rgba(0, 0,0, .1);
+  }

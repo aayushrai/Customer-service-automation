@@ -34,10 +34,17 @@ function Checkout() {
                     <img src={OrderData.length &&  url+OrderData[0].user_image} />
                 </div>
                 <div className="person__info">
-                    <div className="order__id">
-                        <label className="label">Order Id</label>
-                        <br></br>
-                        <input type="text" id="orderid" name="Order" value={params.order_id} size="33" readOnly></input>
+                    <div className="lineone">
+                        <div>
+                            <label className="label">Order Id</label>
+                            <br></br>
+                            <input type="text"  name="Order" value={params.order_id} size="33" readOnly></input>
+                        </div>
+                        <div>
+                            <label className="label">Total Number Of Orders</label>
+                            <br></br>
+                            <input type="text" name="Order" value={OrderData.length && OrderData[0].order_count} size="33" readOnly></input>
+                        </div>
                     </div>
                     <div className="lineone">
                         <div>

@@ -233,7 +233,6 @@ def sendEmail(order_id):
 	order_info = Order.objects.filter(order_id=order_id)
 	user_info = order_info[0].user
 	receiver_email = user_info.user_email
-	print(receiver_email)
 	sender_email = "dummy21072000@gmail.com"
 	password = "Aayush#21"
 	message = MIMEMultipart("alternative")
@@ -258,7 +257,6 @@ def sendEmail(order_id):
 
 @api_view(["POST"])
 def PlaceOrder(request):
-	print(request.data)
 	order_details = request.data
 	order_id = uuid.uuid4()
 	orders = []
@@ -284,7 +282,12 @@ def PlaceOrder(request):
 	user.order_count = user.order_count + 1
 	user.save()
 	Order.objects.bulk_create(orders)
-	sendEmail(order_id)
+	try:
+		sendEmail(order_id)
+	except:
+		print("Error while sending email")
+		
+	
 	return Response({"order_id":order_id})
 
 @api_view(["GET"])
@@ -302,7 +305,6 @@ def orderInfo(request,order_id):
 			dis[key] = value
 		result.append(dis)
 	serilizeUserInfo = UserSerializer(user_info)
-	print(serilizeUserInfo.data)
 	return Response([serilizeUserInfo.data] + result)
 def loadData(request):
 	import pandas as pd
@@ -369,7 +371,6 @@ class VideoCamera():
 		# 	FOLDER = os.path.join(UNKNOWN_DIR, name)
 		# 	for filename in os.listdir(FOLDER):
 		users = User.objects.all()
-		print(users)
 		for user in users:
 			image = face_recognition.load_image_file(user.user_image)
 			
