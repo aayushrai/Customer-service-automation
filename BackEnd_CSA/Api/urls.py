@@ -8,5 +8,6 @@ urlpatterns =[
     path("loaddata",views.loadData,name="loadData"),
     path("placeorder",views.PlaceOrder,name="placeOrder"),
     path("order/<str:order_id>",views.orderInfo,name="orderInformation"),
+    path("applydiscount",views.applyDiscount,name="applyDiscount"),
   
 ]

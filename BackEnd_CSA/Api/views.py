@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http.response import StreamingHttpResponse
-from .models import User,UserSerializer,Product,ProductSerializer,Order,OrderSerializer
+from .models import User,UserSerializer,Product,ProductSerializer,Order,OrderSerializer,Discount
 from rest_framework.parsers import JSONParser
 import uuid
 import time
@@ -33,6 +33,356 @@ def productData(request):
 	productResult = ProductSerializer(result,many=True)
 	return Response(productResult.data)
 
+@api_view(["GET"])
+def applyDiscount(request):
+	emailDis = {}
+	for discount in Discount.objects.all():
+		if not discount.emailed:
+			userMailed = []
+			users = Order.objects.filter(product=discount.product)
+			for user in users:
+				if user.user_id not in userMailed:
+					if user.user.user_email not in emailDis:
+						if user.user.user_email:
+							emailDis[user.user.user_email] = [discount]
+					else:
+						emailDis[user.user.user_email].append(discount)
+					userMailed.append(user.user_id)
+	try:
+		sendDiscountMail(emailDis)	
+	except Exception as e:
+		print("Error while Sending DiscountEmail, may be you are not connected to internet!!!!!!")	
+		print(e)	
+			
+	return Response({"discount":"Emailed"})
+def discountEmailTemplate(discounts):
+	product = ""
+	for dis in discounts:
+		product += """<tr>
+		            <td class="bg_light email-section" style="padding: 0; width: 100%;">
+		            	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+		            		<tr>
+                      <td valign="middle" width="50%">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                          <tr>
+                            <td class="text-services" style="text-align: left; padding: 20px 30px;">
+                            	<div class="heading-section">
+								              	<h2 style="font-size: 22px;">Name:"""+ dis.product.title +"""</h2>
+								              	<p> Description"""+ dis.product.description +"""</p>
+								              	<p> Discount:"""+ str(dis.percent) +"""% OFF</p>
+												<p> Original Price:"""+ str(dis.product.price) +"""</p>
+												<p> Discount Price:"""+ str(dis.product.price - ((dis.product.price)*(dis.percent/100))) +"""</p>
+								            	</div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                      <td valign="middle" width="50%">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                          <tr>
+                            <td>
+                              <img src='"""+ dis.product.logo +"""' alt="" style="width: 100%; max-width: 600px; height: auto; margin: auto; display: block;">
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+		            	</table>
+		            </td>
+		          </tr>"""
+		  
+	html = '''
+	<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8"> <!-- utf-8 works for most cases -->
+    <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
+    <meta name="x-apple-disable-message-reformatting">  <!-- Disable auto-scale in iOS 10 Mail entirely -->
+    <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+
+    <!-- CSS Reset : BEGIN -->
+    <style>
+
+        /* What it does: Remove spaces around the email design added by some email clients. */
+        /* Beware: It can remove the padding / margin and add a background color to the compose a reply window. */
+        html,
+body {
+    margin: 0 auto !important;
+    padding: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    background: #f1f1f1;
+}
+
+/* What it does: Stops email clients resizing small text. */
+* {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* What it does: Centers email on Android 4.4 */
+div[style*="margin: 16px 0"] {
+    margin: 0 !important;
+}
+
+/* What it does: Stops Outlook from adding extra spacing to tables. */
+table,
+td {
+    mso-table-lspace: 0pt !important;
+    mso-table-rspace: 0pt !important;
+}
+
+/* What it does: Fixes webkit padding issue. */
+table {
+    border-spacing: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    margin: 0 auto !important;
+}
+
+/* What it does: Uses a better rendering method when resizing images in IE. */
+img {
+    -ms-interpolation-mode:bicubic;
+}
+
+/* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+a {
+    text-decoration: none;
+}
+
+/* What it does: A work-around for email clients meddling in triggered links. */
+*[x-apple-data-detectors],  /* iOS */
+.unstyle-auto-detected-links *,
+.aBn {
+    border-bottom: 0 !important;
+    cursor: default !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+}
+
+/* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+.a6S {
+    display: none !important;
+    opacity: 0.01 !important;
+}
+
+/* What it does: Prevents Gmail from changing the text color in conversation threads. */
+.im {
+    color: inherit !important;
+}
+
+/* If the above doesn't work, add a .g-img class to any image in question. */
+img.g-img + div {
+    display: none !important;
+}
+
+/* What it does: Removes right gutter in Gmail iOS app: https://github.com/TedGoas/Cerberus/issues/89  */
+/* Create one of these media queries for each additional viewport size you'd like to fix */
+
+/* iPhone 4, 4S, 5, 5S, 5C, and 5SE */
+@media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+    u ~ div .email-container {
+        min-width: 320px !important;
+    }
+}
+/* iPhone 6, 6S, 7, 8, and X */
+@media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+    u ~ div .email-container {
+        min-width: 375px !important;
+    }
+}
+/* iPhone 6+, 7+, and 8+ */
+@media only screen and (min-device-width: 414px) {
+    u ~ div .email-container {
+        min-width: 414px !important;
+    }
+}
+
+    </style>
+
+    <!-- CSS Reset : END -->
+
+    <!-- Progressive Enhancements : BEGIN -->
+    <style>
+
+	    .primary{
+	background: #f85e9f;
+}
+.bg_white{
+	background: #ffffff;
+}
+.bg_light{
+	background: #fafafa;
+}
+.bg_black{
+	background: #000000;
+}
+.bg_dark{
+	background: rgba(0,0,0,.8);
+}
+.email-section{
+	padding:2.5em;
+}
+
+
+h1,h2,h3,h4,h5,h6{
+	font-family: 'Lato', sans-serif;
+	color: #000000;
+	margin-top: 0;
+	font-weight: 400;
+}
+
+body{
+	font-family: 'Lato', sans-serif;
+	font-weight: 400;
+	font-size: 15px;
+	line-height: 1.8;
+	color: rgba(0,0,0,.4);
+}
+
+a{
+	color: #f85e9f;
+}
+
+table{
+}
+/*LOGO*/
+
+.logo h1{
+	margin: 0;
+}
+.logo h1 a{
+	color: #000000;
+	font-size: 20px;
+	font-weight: 700;
+	text-transform: uppercase;
+	font-family: 'Lato', sans-serif;
+	border: 2px solid #000;
+	padding: .2em 1em;
+}
+
+.hero{
+	position: relative;
+	z-index: 0;
+}
+
+.hero .text{
+	color: rgba(0,0,0,.3);
+}
+.hero .text h2{
+	color: #000;
+	font-size: 30px;
+	margin-bottom: 0;
+	font-weight: 300;
+}
+.hero .text h2 span{
+	font-weight: 600;
+	color: #f85e9f;
+}
+
+
+
+
+ul.social{
+	padding: 0;
+}
+ul.social li{
+	display: inline-block;
+	margin-right: 10px;
+}
+
+
+@media screen and (max-width: 500px) {
+
+
+}
+
+
+    </style>
+
+
+</head>
+
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #222222;">
+	<center style="width: 100%; background-color: #f1f1f1;">
+    <div style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
+      &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+    </div>
+    <div style="max-width: 600px; margin: 0 auto;" class="email-container">
+    	<!-- BEGIN BODY -->
+      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
+      	<tr>
+          <td valign="top" class="bg_white" style="padding: 1em 2.5em 0 2.5em;">
+          	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          		<tr>
+          			<td class="logo" style="text-align: center;">
+			            <h1><a href="#">WE MEGA MART</a></h1>
+			          </td>
+          		</tr>
+          	</table>
+          </td>
+	
+				<tr>
+          <td valign="middle" class="hero hero-2 bg_white" style="padding: 2em 0 4em 0;">
+            <table>
+            	<tr>
+            		<td>
+            			<div class="text" style="padding: 0 2.5em; text-align: center;">
+            				<h2>Available Offers <span>Prices</span> &amp; <span>Discount</span></h2>
+            			</div>
+            		</td>
+            	</tr>
+            </table>
+          </td>
+	      </tr><!-- end tr -->
+	      <tr>
+		      <td class="bg_white">
+		        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+		          '''+ product +'''
+		       
+		        </table>
+		      </td>
+		    </tr><!-- end:tr -->
+      </table>
+
+    </div>
+  </center>
+</body>
+</html>
+	'''
+	return html
+
+def sendDiscountMail(emailDis):
+	sender_email = "dummy21072000@gmail.com"
+	password = "Aayush#21"
+	message = MIMEMultipart("alternative")
+	message["Subject"] = "WE MEGA MART DISCOUNT"
+	message["From"] = sender_email
+	
+	context = ssl.create_default_context()
+	if len(emailDis)>0:
+		with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+				print("Sending emails")
+				for receiver_email in emailDis:
+					text = "Discount"
+					html = discountEmailTemplate(emailDis[receiver_email])
+					part1 = MIMEText(text, "plain")
+					part2 = MIMEText(html, "html")
+					message.attach(part1)
+					message.attach(part2)
+					server.login(sender_email, password)
+					message["To"] = receiver_email
+					server.sendmail(sender_email, receiver_email, message.as_string())
+				for discount in Discount.objects.all():
+					discount.emailed = True
+					discount.save()	
 def emailTemplate(orderInfo):
 	product = ""
 	total = 0 
@@ -253,7 +603,7 @@ def sendEmail(order_id):
 				message["To"] = receiver_email
 				server.sendmail(sender_email, receiver_email, message.as_string())
 	else:
-		print("No Emails")
+		print("User has no email id in database!!!!!!!!!!")
 
 @api_view(["POST"])
 def PlaceOrder(request):
@@ -285,7 +635,7 @@ def PlaceOrder(request):
 	try:
 		sendEmail(order_id)
 	except:
-		print("Error while sending email")
+		print("Error while sending email , may be you are not connected to internet!!!!!!!!!!!!!!!!")
 		
 	
 	return Response({"order_id":order_id})

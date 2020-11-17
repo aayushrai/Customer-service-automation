@@ -47,7 +47,14 @@ class Order(models.Model):
     product_quantity = models.IntegerField(default=0)
     
     def __str__(self):
-        return self.order_id
+        return self.user.user_name + "-" + self.order_id
+
+class Discount(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    percent = models.IntegerField(default=0)
+    emailed = models.BooleanField(default=False)
+    def __str__(self):
+        return self.product.title
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
