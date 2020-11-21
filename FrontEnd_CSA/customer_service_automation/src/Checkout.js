@@ -38,12 +38,12 @@ function Checkout() {
                         <div>
                             <label className="label">Order Id</label>
                             <br></br>
-                            <input type="text"  name="Order" value={params.order_id} size="33" readOnly></input>
+                            <input type="text" id="orderid" name="Order" value={params.order_id} size="33" readOnly></input>
                         </div>
                         <div>
                             <label className="label">Total Number Of Orders</label>
                             <br></br>
-                            <input type="text" name="Order" value={OrderData.length && OrderData[0].order_count} size="33" readOnly></input>
+                            <input type="text" id="orderCount" name="Order" value={OrderData.length && OrderData[0].order_count} size="33" readOnly></input>
                         </div>
                     </div>
                     <div className="lineone">

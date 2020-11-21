@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import FaceRecog from "./FaceRecog";
 import Checkout from './Checkout';
 import ProductSelect from './ProductSelect';
+import Enroll from './Enroll';
 const url = "http://127.0.0.1:8000";
 
 
@@ -29,6 +30,23 @@ useEffect(() => {
   };
 }, []);
 
+useEffect(() => {
+  const interval = setInterval(
+    () => {
+      fetch(url+"/applydiscount")
+            .then((response) => {
+             //  console.log(response.json());
+              return response.json();
+             })
+             .then((data)=>{
+               // console.log(data);
+             })}
+    , 60000);
+  return () => {
+    clearInterval(interval);
+  };
+}, []);
+
 
       return (
         <Router>
@@ -42,6 +60,10 @@ useEffect(() => {
               <Route path="/productselect/:uid">
                 <Header />
                 <ProductSelect />
+              </Route>
+              <Route path="/enroll">
+                <Header />
+                <Enroll />
               </Route>
               <Route path="/">
                 <Header />

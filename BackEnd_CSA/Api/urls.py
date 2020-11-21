@@ -7,6 +7,7 @@ urlpatterns =[
     path("video",views.videoStream,name="videoStream"),
     path("loaddata",views.loadData,name="loadData"),
     path("placeorder",views.PlaceOrder,name="placeOrder"),
+    path("adduser",views.AddUser,name="adduser"),
     path("order/<str:order_id>",views.orderInfo,name="orderInformation"),
     path("applydiscount",views.applyDiscount,name="applyDiscount"),
   

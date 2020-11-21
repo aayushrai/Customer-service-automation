@@ -13,7 +13,7 @@ from datetime import datetime
 
 # datetime object containing current date and time
 now = datetime.now()
-
+Face = None
 face_dis_flag = False
 result = []
 @api_view(["GET"])
@@ -68,7 +68,7 @@ def discountEmailTemplate(discounts):
                             <td class="text-services" style="text-align: left; padding: 20px 30px;">
                             	<div class="heading-section">
 								              	<h2 style="font-size: 22px;">Name:"""+ dis.product.title +"""</h2>
-								              	<p> Description"""+ dis.product.description +"""</p>
+								              	<p> Description:"""+ dis.product.description +"""</p>
 								              	<p> Discount:"""+ str(dis.percent) +"""% OFF</p>
 												<p> Original Price:"""+ str(dis.product.price) +"""</p>
 												<p> Discount Price:"""+ str(dis.product.price - ((dis.product.price)*(dis.percent/100))) +"""</p>
@@ -361,7 +361,7 @@ ul.social li{
 
 def sendDiscountMail(emailDis):
 	sender_email = "dummy21072000@gmail.com"
-	password = "Aayush#21"
+	password = "fel!zSuen0"
 	message = MIMEMultipart("alternative")
 	message["Subject"] = "WE MEGA MART DISCOUNT"
 	message["From"] = sender_email
@@ -371,15 +371,19 @@ def sendDiscountMail(emailDis):
 		with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
 				print("Sending emails")
 				for receiver_email in emailDis:
-					text = "Discount"
-					html = discountEmailTemplate(emailDis[receiver_email])
-					part1 = MIMEText(text, "plain")
-					part2 = MIMEText(html, "html")
-					message.attach(part1)
-					message.attach(part2)
-					server.login(sender_email, password)
-					message["To"] = receiver_email
-					server.sendmail(sender_email, receiver_email, message.as_string())
+					try:
+						text = "Discount"
+						html = discountEmailTemplate(emailDis[receiver_email])
+						part1 = MIMEText(text, "plain")
+						part2 = MIMEText(html, "html")
+						message.attach(part1)
+						message.attach(part2)
+						server.login(sender_email, password)
+						message["To"] = receiver_email
+						server.sendmail(sender_email, receiver_email, message.as_string())
+					except Exception as e:
+						print(e)
+						print("Not able to send email to ",receiver_email)
 				for discount in Discount.objects.all():
 					discount.emailed = True
 					discount.save()	
@@ -584,7 +588,7 @@ def sendEmail(order_id):
 	user_info = order_info[0].user
 	receiver_email = user_info.user_email
 	sender_email = "dummy21072000@gmail.com"
-	password = "Aayush#21"
+	password = "fel!zSuen0"
 	message = MIMEMultipart("alternative")
 	message["Subject"] = "WE MEGA MART BILL"
 	message["From"] = sender_email
@@ -635,10 +639,21 @@ def PlaceOrder(request):
 	try:
 		sendEmail(order_id)
 	except:
-		print("Error while sending email , may be you are not connected to internet!!!!!!!!!!!!!!!!")
+		print("Error while sending email , may be you are not connected to internet or your email address is wrong")
 		
-	
 	return Response({"order_id":order_id})
+
+@api_view(["POST"])
+def AddUser(request):
+	global Face
+	path = 'Faces/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S"))
+	user_details = request.data
+	path = path+"/"+user_details["user_name"]+".jpg"
+	print(Face)
+	cv2.imwrite(os.path.join(os.getcwd(),"media",path),Face)
+	user = User.objects.create(user_name=user_details["user_name"],user_address=user_details["user_address"],user_phone=user_details["user_phone"],user_email=user_details["user_email"],user_image=path)
+	user.save()
+	return Response({"user_id":user.user_id})
 
 @api_view(["GET"])
 def orderInfo(request,order_id):
@@ -754,7 +769,7 @@ class VideoCamera():
 
 	
 	def face_recog(self):
-		global known_names,known_faces
+		global known_names,known_faces,Face
 		image = self.frame
 		image2 = self.frame.copy()
 		#locations = face_recognition.face_locations(image2, number_of_times_to_upsample=3,model="hog")
@@ -769,8 +784,8 @@ class VideoCamera():
 			if crop_image_H>5 and crop_image_W>5:
 
 				face_rect = self.face_detection(crop_image)
-				# print(face_rect)
 				if len(face_rect)==1:
+					Face = crop_image
 					results = face_recognition.compare_faces(known_faces, face_encoding,tolerance=0.6)
 					global distance,face_dis_flag
 					distance = face_recognition.face_distance(known_faces,face_encoding)
