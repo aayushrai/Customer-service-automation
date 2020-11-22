@@ -35,7 +35,8 @@ def userData(request):
 			"user_name": "Unknown",
 			"user_id": "",
 			"user_address": "",
-			"user_image": "/media/detectedFace/face.jpg",
+			"user_phone": "",
+			"user_image": "/detectedface",
 			"user_phone": "",
 			"user_email": "",
 		}
@@ -658,6 +659,20 @@ def PlaceOrder(request):
 		
 	return Response({"order_id":order_id})
 
+def imageGen():
+	while True:
+		global Face
+		frame = Face.copy()
+		ret,frame = cv2.imencode('.jpg', frame)
+		frame = frame.tobytes()
+		yield (b'--frame\r\n'
+				b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def imagePublish(request):
+    return StreamingHttpResponse(imageGen(),
+                        content_type='multipart/x-mixed-replace; boundary=frame')
+                    
+
 @api_view(["POST"])
 def AddUser(request):
 	img = cv2.imread("media/detectedFace/face.jpg")
@@ -797,8 +812,9 @@ class VideoCamera():
 
 				face_rect = self.face_detection(crop_image)
 				if len(face_rect)==1:
-					Face = image2
-					if counter%5==0:
+					
+					if counter%10==0:
+						Face = crop_image
 						cv2.imwrite("media/detectedFace/face.jpg",crop_image)
 					counter += 1
 					if counter > 500:
