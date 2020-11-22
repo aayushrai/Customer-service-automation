@@ -75,7 +75,7 @@ useEffect(() => {
                     <div className="App__list">
                       {
                         FaceDetected.map((item,i)=> 
-                        <FaceRecog key={i} name={item.user_name} address={item.user_address} path={url+item.user_image} phone={item.user_phone} uid={item.user_id}/>
+                        <FaceRecog key={i} name={item.user_name} address={item.user_address} path={url+item.user_image} phone={item.user_phone} uid={item.user_id} index={i}/>
                     
                         )}
                         </div>

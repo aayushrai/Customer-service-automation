@@ -28,7 +28,7 @@ function Enroll() {
             <div className="person__data">
                 <div className="person__image">
                 
-                <img src={url+"/video"}></img>
+                <img src={url+"/media/detectedFace/face.jpg"}></img>
                 </div>
                 <div className="person__info">
                     

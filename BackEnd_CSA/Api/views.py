@@ -16,18 +16,31 @@ import cv2,os
 # datetime object containing current date and time
 now = datetime.now()
 Face = None
+counter = 0
 face_dis_flag = False
 result = []
 @api_view(["GET"])
 def userData(request):
-	global result
+	global result,counter
 	if face_dis_flag:
 		result =[]
 		for name,idd,dis in sorted(zip(known_names,known_id,distance), key=lambda item: item[2]):
 			if dis < .6:
 				result.append(User.objects.get(user_id=idd))
 	serilizeResult = UserSerializer(result,many=True)
-	return Response(serilizeResult.data)
+	user_data = serilizeResult.data
+	if counter:
+		user_data = [
+		{
+			"user_name": "Unknown",
+			"user_id": "",
+			"user_address": "",
+			"user_image": "/media/detectedFace/face.jpg",
+			"user_phone": "",
+			"user_email": "",
+		}
+		] + user_data
+	return Response(user_data)
 
 @api_view(["GET"])
 def productData(request):
@@ -647,10 +660,10 @@ def PlaceOrder(request):
 
 @api_view(["POST"])
 def AddUser(request):
-	global Face
+	img = cv2.imread("media/detectedFace/face.jpg")
 	img_name = uuid.uuid4()
 	path = str(img_name)+".jpg"
-	cv2.imwrite("media/"+ path,Face)
+	cv2.imwrite("media/"+ path,img)
 	user_details = request.data
 	user = User.objects.create(user_name=user_details["user_name"],user_address=user_details["user_address"],user_phone=user_details["user_phone"],user_email=user_details["user_email"],user_image=path)
 	user.save()
@@ -768,7 +781,7 @@ class VideoCamera():
 
 	
 	def face_recog(self):
-		global known_names,known_faces,Face
+		global known_names,known_faces,Face,counter
 		image = self.frame
 		image2 = self.frame.copy()
 		#locations = face_recognition.face_locations(image2, number_of_times_to_upsample=3,model="hog")
@@ -778,13 +791,18 @@ class VideoCamera():
 		
 		for face_encoding, face_location in zip(encodings, rects):
 			(startY,endX,endY,startX) = face_location
-			crop_image=image2[startY-30:endY+30,startX-30:endX+30,:]
+			crop_image=image2[startY-40:endY+40,startX-40:endX+40,:]
 			crop_image_H,crop_image_W,crop_image_C=crop_image.shape
-			if crop_image_H>5 and crop_image_W>5:
+			if crop_image_H>100 and crop_image_W>100:
 
 				face_rect = self.face_detection(crop_image)
 				if len(face_rect)==1:
 					Face = image2
+					if counter%5==0:
+						cv2.imwrite("media/detectedFace/face.jpg",crop_image)
+					counter += 1
+					if counter > 500:
+						counter = 1
 					results = face_recognition.compare_faces(known_faces, face_encoding,tolerance=0.6)
 					global distance,face_dis_flag
 					distance = face_recognition.face_distance(known_faces,face_encoding)
