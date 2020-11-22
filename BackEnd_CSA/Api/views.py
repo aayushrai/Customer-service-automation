@@ -10,7 +10,9 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-
+import face_recognition
+from imutils.video import VideoStream
+import cv2,os
 # datetime object containing current date and time
 now = datetime.now()
 Face = None
@@ -646,11 +648,10 @@ def PlaceOrder(request):
 @api_view(["POST"])
 def AddUser(request):
 	global Face
-	path = 'Faces/{}'.format(time.strftime("%Y-%m-%d-%H-%M-%S"))
+	img_name = uuid.uuid4()
+	path = str(img_name)+".jpg"
+	cv2.imwrite("media/"+ path,Face)
 	user_details = request.data
-	path = path+"/"+user_details["user_name"]+".jpg"
-	print(Face)
-	cv2.imwrite(os.path.join(os.getcwd(),"media",path),Face)
 	user = User.objects.create(user_name=user_details["user_name"],user_address=user_details["user_address"],user_phone=user_details["user_phone"],user_email=user_details["user_email"],user_image=path)
 	user.save()
 	return Response({"user_id":user.user_id})
@@ -708,9 +709,7 @@ def videoStream(request):
 #================================================FACE RECOGNITION PART===============================================================#
 
 
-import face_recognition
-from imutils.video import VideoStream
-import cv2,os
+
 load_encodings = False
 face_cascade = cv2.CascadeClassifier('Api/assets/haarcascade_frontalface_default.xml')
 
@@ -785,7 +784,7 @@ class VideoCamera():
 
 				face_rect = self.face_detection(crop_image)
 				if len(face_rect)==1:
-					Face = crop_image
+					Face = image2
 					results = face_recognition.compare_faces(known_faces, face_encoding,tolerance=0.6)
 					global distance,face_dis_flag
 					distance = face_recognition.face_distance(known_faces,face_encoding)
