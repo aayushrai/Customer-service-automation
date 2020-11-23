@@ -34,11 +34,10 @@ def userData(request):
 		{
 			"user_name": "Unknown",
 			"user_id": "",
-			"user_address": "",
-			"user_phone": "",
+			"user_address": "Unknown",
+			"user_phone": "Unknown",
 			"user_image": "/detectedface",
-			"user_phone": "",
-			"user_email": "",
+			"user_email": "Unknown",
 		}
 		] + user_data
 	return Response(user_data)
@@ -652,12 +651,20 @@ def PlaceOrder(request):
 	user.order_count = user.order_count + 1
 	user.save()
 	Order.objects.bulk_create(orders)
+	return Response({"order_id":order_id})
+
+@api_view(["POST"])
+def SendBill(request):
+	emailed = "True"
+	order_id = request.data["order_id"]
 	try:
 		sendEmail(order_id)
 	except:
+		emailed = "False"
 		print("Error while sending email , may be you are not connected to internet or your email address is wrong")
 		
-	return Response({"order_id":order_id})
+	return Response({"emailed":emailed})
+
 
 def imageGen():
 	while True:
@@ -700,6 +707,8 @@ def orderInfo(request,order_id):
 		result.append(dis)
 	serilizeUserInfo = UserSerializer(user_info)
 	return Response([serilizeUserInfo.data] + result)
+
+@api_view(["GET"])
 def loadData(request):
 	import pandas as pd
 	df = pd.read_csv('Api/assets/customer.csv')

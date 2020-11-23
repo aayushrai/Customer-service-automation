@@ -4,13 +4,15 @@ import React, { useState } from 'react';
 import "./Checkout.css";
 import {
     Link,
-    useParams
+    useParams,
+    useHistory
   } from "react-router-dom";
 import { useEffect } from 'react';
 const url = "http://127.0.0.1:8000";
 function Checkout() {
     const [OrderData,setOrder] = useState([]);
     const params = useParams();
+    const history = useHistory();
     useEffect(() => {
         fetch(url+'/order/'+ params.order_id)
               .then((response) => {
@@ -25,6 +27,18 @@ function Checkout() {
             })
   
         }, [])
+
+        const sendbill = ()=> {
+            const requestOptions = {    
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({"order_id":params.order_id})
+                };
+            fetch(url+'/sendbill', requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                history.push("/");
+            })}
        
         
     return (
@@ -50,19 +64,19 @@ function Checkout() {
                         <div>
                             <label className="label">Customer Name</label>
                             <br></br>
-                            <input type="text" id="fname" name="firstname" value={OrderData.length &&  OrderData[0].user_name} ></input>
+                            <input type="text" id="fname" name="firstname" value={OrderData.length &&  OrderData[0].user_name} size="33" ></input>
                         </div>
                         <div>
                             <label className="label">Customer Email</label>
                             <br></br>
-                            <input type="text" id="email" name="firstname" value={OrderData.length &&  OrderData[0].user_email} ></input>
+                            <input type="text" id="email" name="firstname" value={OrderData.length &&  OrderData[0].user_email} size="33" ></input>
                         </div>
                     </div>
                     <div className="linetwo">
                         <div>
                             <label className="label">Contact</label>
                             <br></br>
-                            <input type="text" id="contact" name="contact" value={OrderData.length &&  OrderData[0].user_phone} ></input>
+                            <input type="text" id="contact" name="contact" value={OrderData.length &&  OrderData[0].user_phone} size="33" ></input>
                         </div>
                         <div>
                             <label className="label">Payment Method</label>
@@ -78,7 +92,7 @@ function Checkout() {
                     <div className="linethree">
                         <label className="label">Address</label>
                         <br></br>
-                        <input size="53" type="text" id="address" name="address" value={OrderData.length &&  OrderData[0].user_address} ></input>
+                        <input size="75" type="text" id="address" name="address" value={OrderData.length &&  OrderData[0].user_address} ></input>
                     </div>
                     <div className="linefour">
                         <div >
@@ -94,7 +108,7 @@ function Checkout() {
                     </div>
                 </div>
                 <div>
-                    <Button variant="contained" color="black" >
+                    <Button variant="contained" color="black" onClick={()=>{sendbill()}}>
                         Order Now
                     </Button>
                 </div>

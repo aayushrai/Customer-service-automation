@@ -10,5 +10,6 @@ urlpatterns =[
     path("adduser",views.AddUser,name="adduser"),
     path("order/<str:order_id>",views.orderInfo,name="orderInformation"),
     path("applydiscount",views.applyDiscount,name="applyDiscount"),
-    path("detectedface",views.imagePublish,name="imagePublisher")
+    path("detectedface",views.imagePublish,name="imagePublisher"),
+    path("sendbill",views.SendBill,name="sendbill")
 ]
