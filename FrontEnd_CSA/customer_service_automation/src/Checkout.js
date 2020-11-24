@@ -13,6 +13,7 @@ function Checkout() {
     const [OrderData,setOrder] = useState([]);
     const params = useParams();
     const history = useHistory();
+    const [Discount,setDiscount] = useState(0);
     useEffect(() => {
         fetch(url+'/order/'+ params.order_id)
               .then((response) => {
@@ -21,6 +22,9 @@ function Checkout() {
                })
                .then((data)=>{
                  setOrder(data);
+                 if((data[0].order_count)%10===0){
+                 setDiscount(params.total*(0.05));
+                 }
                 // console.log("order",data);
                });
                OrderData.map((item)=>{
@@ -96,14 +100,26 @@ function Checkout() {
                     </div>
                     <div className="linefour">
                         <div >
-                            <label className="label">Number of items</label>
+                            <label className="label">Number Of Items</label>
                             <br></br>
                             <input type="text" id="items" name="items" value={OrderData.length -1} ></input>
                         </div>
                         <div>
-                            <label className="label">Final Price</label>
+                            <label className="label">Orignal Price</label>
                             <br></br>
                             <input type="text" id="price" name="price" value={params.total} ></input>
+                        </div>
+                    </div>
+                    <div className="linefour">
+                        <div >
+                            <label className="label">Discount</label>
+                            <br></br>
+                            <input type="text" id="items" name="items" value={Discount} ></input>
+                        </div>
+                        <div>
+                            <label className="label">Final Price</label>
+                            <br></br>
+                            <input type="text" id="price" name="price" value={(params.total)-Discount} ></input>
                         </div>
                     </div>
                 </div>

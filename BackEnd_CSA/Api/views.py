@@ -402,9 +402,11 @@ def sendDiscountMail(emailDis):
 				for discount in Discount.objects.all():
 					discount.emailed = True
 					discount.save()	
-def emailTemplate(orderInfo):
+def emailTemplate(orderInfo,order_count):
 	product = ""
-	total = 0 
+	total = 0
+	discount = 0
+		
 	for order in orderInfo:
 		total += order.product.price * (order.product_quantity)
 		product += """ <tr>
@@ -414,80 +416,83 @@ def emailTemplate(orderInfo):
             <td class="qty">{}</td>
             <td class="total">{}</td>
           </tr>""".format(order.product.title,order.product.description,order.product.price,order.product_quantity,order.product.price * (order.product_quantity))
-		  
+	
+	if order_count%10==0:
+		discount = total*0.05
+
 	html = '''
 	<!DOCTYPE html>
 	<html lang="en">
-  <head>
+    <head>
     <meta charset="utf-8">
     <title>Example 1</title>
     <link rel="stylesheet" href="style.css" media="all" />
 	<style>
-	a {
-  color: #5D6975;
-  text-decoration: underline;
-}
+		a {
+			color: #5D6975;
+			text-decoration: underline;
+		}
 
-body {
-  position: relative;
-  width: 21cm;  
-  height: 29.7cm; 
-  margin: 0 auto; 
-  color: #001028;
-  background: #FFFFFF; 
-  font-family: Arial, sans-serif; 
-  font-size: 12px; 
-  font-family: Arial;
-}
+		body {
+		position: relative;
+		width: 21cm;  
+		height: 29.7cm; 
+		margin: 0 auto; 
+		color: #001028;
+		background: #FFFFFF; 
+		font-family: Arial, sans-serif; 
+		font-size: 12px; 
+		font-family: Arial;
+		}
 
-header {
-  padding: 10px 0;
-  margin-bottom: 30px;
-}
+		header {
+		padding: 10px 0;
+		margin-bottom: 30px;
+		}
 
-#logo {
-  text-align: center;
-  margin-bottom: 10px;
-}
+		#logo {
+		text-align: center;
+		margin-bottom: 10px;
+		}
 
-#logo img {
-  width: 90px;
-}
+		#logo img {
+		width: 90px;
+		}
 
-h1 {
-  border-top: 1px solid  #5D6975;
-  border-bottom: 1px solid  #5D6975;
-  color: #5D6975;
-  font-size: 2.4em;
-  line-height: 1.4em;
-  font-weight: normal;
-  text-align: center;
-  margin: 0 0 20px 0;
-  background: url(dimension.png);
-}
+	h1 {
+	border-top: 1px solid  #5D6975;
+	border-bottom: 1px solid  #5D6975;
+	color: #5D6975;
+	font-size: 2.4em;
+	line-height: 1.4em;
+	font-weight: normal;
+	text-align: center;
+	margin: 0 0 20px 0;
+	background: url(dimension.png);
+	}
 
-#project {
-  float: left;
-}
+	#project {
+	float: left;
+	}
 
-#project span {
-  color: #5D6975;
-  text-align: right;
-  width: 52px;
-  margin-right: 10px;
-  display: inline-block;
-  font-size: 0.8em;
-}
+	#project span {
+	color: #5D6975;
+	text-align: right;
+	width: 52px;
+	margin-right: 10px;
+	display: inline-block;
+	font-size: 0.8em;
+	}
 
-#company {
-  float: right;
-  text-align: right;
-}
+	#company {
+	float: right;
+	text-align: right;
+	}
 
-#project div,
-#company div {
-  white-space: nowrap;        
-}
+	#project div,
+	#company div {
+	white-space: nowrap;        
+	}
 
 table {
   width: 100%;
@@ -500,8 +505,7 @@ table tr:nth-child(2n-1) td {
   background: #F5F5F5;
 }
 
-table th,
-table td {
+table th,table td {
   text-align: center;
 }
 
@@ -513,8 +517,7 @@ table th {
   font-weight: normal;
 }
 
-table .service,
-table .desc {
+table .service,table .desc {
   text-align: left;
 }
 
@@ -528,19 +531,12 @@ table td.desc {
   vertical-align: top;
 }
 
-table td.unit,
-table td.qty,
-table td.total {
+table td.unit,table td.qty,table td.total {
   font-size: 1.2em;
 }
 
 table td.grand {
   border-top: 1px solid #5D6975;;
-}
-
-#notices .notice {
-  color: #5D6975;
-  font-size: 1.2em;
 }
 
 footer {
@@ -566,29 +562,37 @@ footer {
 			<div><span>Order ID </span>'''+ orderInfo[0].order_id+'''</div>
 			<div><span>CLIENT</span> '''+orderInfo[0].user.user_name +'''</div>
 			<div><span>ADDRESS</span> '''+orderInfo[0].user.user_address +'''</div>
-			<div><span>EMAIL</span> <a href="'''+orderInfo[0].user.user_email +'''">'''+orderInfo[0].user.user_email +'''</a></div>
+			<div><span>EMAIL</span> '''+orderInfo[0].user.user_email +'''</div>
 			<div><span>DATE</span>'''+ now.strftime("%d/%m/%Y %H:%M:%S") +'''</div>
 		</div>
 		</header>
 		<main>
-		<table>
-			<thead>
-			<tr>
-				<th class="service">PRODUCT NAME>
-				<th class="desc">DESCRIPTION</th>
-				<th>PRICE</th>
-				<th>QTY</th>
-				<th>TOTAL</th>
-			</tr>
-			</thead>
-			<tbody>
-		    '''+product+'''
-			<tr>
-				<td colspan="4" class="grand total">GRAND TOTAL</td>
-				<td class="grand total"> '''+ str(total) +'''</td>
-			</tr>
-			</tbody>
-		</table>
+			<table>
+				<thead>
+					<tr>
+						<th class="service">PRODUCT NAME</th>
+						<th class="desc">DESCRIPTION</th>
+						<th>PRICE</th>
+						<th>QTY</th>
+						<th>TOTAL</th>
+					</tr>
+				</thead>
+				<tbody>
+					'''+product+'''
+					<tr>
+						<td colspan="4" class="grand total">TOTAL</td>
+						<td class="grand total"> '''+ str(total) +'''</td>
+					</tr>
+					<tr>
+						<td colspan="4" class="grand total">DISCOUNT</td>
+						<td class="grand total"> '''+ str(discount) +'''</td>
+					</tr>
+					<tr>
+						<td colspan="4" class="grand total">GRAND TOTAL</td>
+						<td class="grand total"> '''+ str(total-discount) +'''</td>
+					</tr>
+				</tbody>
+			</table>
 		</main>
 		<footer>
 		Invoice was created on a computer and is valid without the signature and seal.
@@ -607,7 +611,7 @@ def sendEmail(order_id):
 	message = MIMEMultipart("alternative")
 	message["Subject"] = "WE MEGA MART BILL"
 	message["From"] = sender_email
-	html = emailTemplate(order_info)
+	html = emailTemplate(order_info,user_info.order_count)
 	text = "hloo"
 	part1 = MIMEText(text, "plain")
 	part2 = MIMEText(html, "html")
