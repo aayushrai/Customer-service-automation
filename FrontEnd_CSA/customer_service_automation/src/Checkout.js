@@ -3,7 +3,6 @@ import Button from '@material-ui/core/Button';
 import React, { useState } from 'react';
 import "./Checkout.css";
 import {
-    Link,
     useParams,
     useHistory
   } from "react-router-dom";
@@ -23,7 +22,7 @@ function Checkout() {
                .then((data)=>{
                  setOrder(data);
                  if((data[0].order_count)%10===0){
-                 setDiscount(params.total*(0.05));
+                 setDiscount(parseInt(params.total*(0.05)));
                  }
                 // console.log("order",data);
                });
