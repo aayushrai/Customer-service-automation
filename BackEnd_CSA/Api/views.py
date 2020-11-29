@@ -41,6 +41,11 @@ def userData(request):
 		}
 		] + user_data
 	return Response(user_data)
+	
+@api_view(["POST"])
+def ScreenShot(request):
+	cv2.imwrite("media/detectedFace/face1.jpg",Face)
+	return Response({"saved":"True"})
 
 @api_view(["GET"])
 def productData(request):
@@ -374,6 +379,7 @@ ul.social li{
 	'''
 	return html
 
+
 def sendDiscountMail(emailDis):
 	sender_email = "dummy21072000@gmail.com"
 	password = "fel!zSuen0"
@@ -418,7 +424,7 @@ def emailTemplate(orderInfo,order_count):
           </tr>""".format(order.product.title,order.product.description,order.product.price,order.product_quantity,order.product.price * (order.product_quantity))
 	
 	if order_count%10==0:
-		discount = total*0.05
+		discount = int(total*0.05)
 
 	html = '''
 	<!DOCTYPE html>
@@ -663,10 +669,10 @@ def SendBill(request):
 	order_id = request.data["order_id"]
 	try:
 		sendEmail(order_id)
-	except:
+	except Exception as e:
 		emailed = "False"
 		print("Error while sending email , may be you are not connected to internet or your email address is wrong")
-		
+		print("Error is : ",e)
 	return Response({"emailed":emailed})
 
 
@@ -686,7 +692,7 @@ def imagePublish(request):
 
 @api_view(["POST"])
 def AddUser(request):
-	img = cv2.imread("media/detectedFace/face.jpg")
+	img = cv2.imread("media/detectedFace/face1.jpg")
 	img_name = uuid.uuid4()
 	path = str(img_name)+".jpg"
 	cv2.imwrite("media/"+ path,img)
