@@ -1,12 +1,26 @@
 import React from 'react';
 import "./FaceRecog.css";
 import Button from '@material-ui/core/Button';
-import { Link } from "react-router-dom";
-
+import {
+  useHistory,Link
+} from "react-router-dom";
+const url = "http://127.0.0.1:8000";
 
 function FaceRecog({name,address,path,phone,email,uid,index}) {
+  const history = useHistory();
+  const screenShot = ()=> {
+    const requestOptions = {    
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({"order_id":"image"})
+        };
+    fetch(url+'/screenshot', requestOptions)
+    .then(response => response.json())
+    .then(data => {
+        history.push("/enroll");
+    })}
   const unknownHandler = (index) => {
-    if (index==0) {
+    if (index===0) {
       return(
         <div className="FaceRecog">
         <img className="FaceRecog__image" src={path}></img>
@@ -18,11 +32,9 @@ function FaceRecog({name,address,path,phone,email,uid,index}) {
             <div className="FaceRecog__email"><span style={{color:"grey"}}>Email: </span>{email}</div>
           </div>
             <div className="FaceRecog__button">
-            <Link to={"/enroll"}>
-              <Button variant="contained" color="primary" >
+              <Button variant="contained" color="primary" onClick={()=>{screenShot()}} >
                 Add Unknown
               </Button>
-            </Link>
             </div>
         </div>
     </div>
